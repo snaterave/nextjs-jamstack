@@ -1,71 +1,66 @@
-import { Grid } from '@ui/Grid'
-import { Button } from '@ui/Button'
-import { Typography } from '@ui/Typography'
+//import { useEffect, useState } from 'react'
+import { getPlantList } from '@api'
 import { Layout } from '@components/Layout'
+import { PlantCollection } from '@components/PlantCollection'
+import { GetStaticProps, InferGetStaticPropsType } from 'next'
+import { Hero } from '@components/Hero'
+import { Authors } from '@components/Authors'
 
-export default function Home() {
+// Aquí estás definiendo un tipo para los props de tu página de inicio.
+// De acuerdo con este tipo, espera recibir un arreglo de plantas.
+type HomeProps = {
+  plants: Plant[]
+}
+// Solo funciona en pages
+// La función getStaticProps es una característica de Next.js que te permite pre-renderizar tu página en el momento de la construcción.
+// En este caso, estás obteniendo una lista de plantas de tu API y pasándolas como props a tu componente de página de inicio.
+// getStaticProps = corre en el servidor
+export const getStaticProps: GetStaticProps<HomeProps> = async () => {
+  const plants = await getPlantList({ limit: 10 })
+  return {
+    props: {
+      plants,
+    },
+    revalidate: 5 * 60, // refresh 5min
+  }
+}
+
+// Este es el componente de tu página de inicio.
+// Recibe las plantas como props debido a la función getStaticProps que definiste anteriormente.
+export default function Home({
+  plants,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
+  //const [data, setData] = useState<Plant[]>([]);
+
+  // Renderin gdesde el navegador
+  /*useEffect(() => {
+    getPlantList({ limit: 10 }).then((response) => setData(response))
+  }, [])*/
+
   return (
+    // Estás envolviendo todo tu contenido de la página de inicio en un componente Layout.
     <Layout>
-      <Typography variant="h2" className="text-center">
-        👋 Curso de Next.js
-      </Typography>
-      <div className="max-w-5xl mx-auto my-10">
-        <Grid component="ul" container spacing={2}>
-          {documentationList.map((doc) => (
-            <Grid component="li" item className="" xs={6}>
-              <a
-                href={doc.link}
-                target="_blank"
-                title={doc.title}
-                className="p-4 border-2 border-gray-300 block hover:border-green-500 transition transition-colors duration-500"
-              >
-                <Typography variant="h5" className="mb-2">
-                  {doc.title}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {doc.description}
-                </Typography>
-              </a>
-            </Grid>
-          ))}
-        </Grid>
-      </div>
-      <footer className="text-center">
-        <Button
-          variant="outlined"
-          color="primary"
-          href="https://platzi.com/cursos/next-avanzado/"
-        >
-          🚀 Ir al curso
-        </Button>
-      </footer>
+      // El componente Hero recibe la primera planta de tu lista de plantas como
+      props. Le estás dando una margen inferior con la clase 'mb-20'.
+      <Hero {...plants[0]} className="mb-20" />
+      // El componente Authors es mostrado a continuación, también con un margen
+      inferior definido.
+      <Authors className="mb-10" />
+      // El componente PlantCollection se usa para mostrar tus plantas. Primero,
+      muestras las plantas de la posición 1 a la 3 en forma vertical con un
+      margen inferior.
+      <PlantCollection
+        plants={plants.slice(1, 3)}
+        variant="vertical"
+        className="mb-24"
+      />
+      // Luego, si tienes más de 8 plantas, muestras las plantas de la posición
+      3 a la 9 en forma cuadrada. Si tienes menos de 8, muestras todas las
+      plantas restantes.
+      <PlantCollection
+        plants={plants.length > 8 ? plants.slice(3, 9) : plants}
+        variant="square"
+      />
     </Layout>
   )
 }
-
-const documentationList = [
-  {
-    title: 'Documentación Proyecto',
-    description:
-      '¿Tienes dudas sobre este proyecto? Aquí encuentras la documentación para configurar todo. Aségurate de leerlo.',
-    link: 'https://github.com/jonalvarezz/platzi-nextjs-saga',
-  },
-  {
-    title: 'Documentación Next.js',
-    description:
-      'Aquí encuentras la documentación sobre el framework base con el que realizaremos todo.',
-    link: 'https://nextjs.org/docs/getting-started',
-  },
-  {
-    title: 'Documentación Contentful',
-    description:
-      'Nuestra aplicación conecta a Contenful para leer todo el contenido que mostraremos. Contenful provee la capa de GraphQL.',
-    link: 'https://www.contentful.com/developers/docs/references/content-delivery-api/',
-  },
-  {
-    title: 'Curso de Next.js Básico',
-    description:
-      '¿Olvidates algo sobre Next.js? En el curso básico puedes refrescar tu memoria y aprender los fundamentos.',
-    link: 'https://platzi.com/cursos/next/',
-  },
-]
