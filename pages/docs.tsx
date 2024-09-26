@@ -2,8 +2,45 @@ import { Grid } from '@ui/Grid'
 import { Button } from '@ui/Button'
 import { Typography } from '@ui/Typography'
 import { Layout } from '@components/Layout'
+import { useEffect } from 'react'
+import { getPlantList } from '@api'
+
+/*const fetchPlants = () =>
+  fetch('https://graphql.contentful.com/content/v1/spaces/0fa2l7xdmk0r', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+      Authorization: 'Bearer 7Ssc1BzNhvDwDvx2ez4_25e-6VVBRcQh2bsyrbfj3dA',
+    },
+    body: JSON.stringify({
+      query: `{
+        plantCollection (limit:10){
+          total
+          limit
+          items{
+            plantName
+            author{
+              fullName
+              }
+          }
+        }
+      }`,
+    }),
+  })
+  */
 
 export default function Home() {
+  useEffect(() => {
+    /*fetchPlants()
+      .then((response) => response.json())
+      .then((data) => console.log(data))*/
+    // Esta es una configuracion que se hace entre contenful y graphQL
+    getPlantList({ limit: 10 }).then((data) => {
+      data.forEach((item) => {
+        console.log(item.author.fullName)
+      })
+    })
+  }, [])
   return (
     <Layout>
       <Typography variant="h2" className="text-center">
